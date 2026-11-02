@@ -5,22 +5,24 @@ export type WorkItem = {
   url: string;
   kind: WorkKind;
   tag: string;
-  /** Optional local screenshot, e.g. '/work/gharkamali.png'. Falls back to a live screenshot service. */
+  /** Optional image override. Defaults to the captured screenshot in public/work/. */
   image?: string;
 };
 
-type ShotOptions = { w?: number; h?: number; vpw?: number; vph?: number };
+/** File name used for a site's screenshot in public/work/. Must match `slugOf` in scripts/capture-screenshots.mjs. */
+export function slugOf(url: string) {
+  return new URL(url).hostname
+    .replace(/^www\./, '')
+    .replace(/\.(netlify\.app|com|in|org\.in|org|gobt\.in)$/, '')
+    .replace(/\./g, '-');
+}
 
 /**
- * Live screenshot via WordPress mShots (free, no API key). The first request for a URL returns a
- * placeholder while the screenshot is generated; later loads are cached.
- * For production, drop real screenshots into `public/work/` and set `image` on the item.
+ * Local screenshot captured by `npm run shots` (saved in public/work/).
+ * `mobile` points at the phone-sized capture.
  */
-export function screenshot(url: string, { w = 840, h = 540, vpw, vph }: ShotOptions = {}) {
-  const params = new URLSearchParams({ w: String(w), h: String(h) });
-  if (vpw) params.set('vpw', String(vpw));
-  if (vph) params.set('vph', String(vph));
-  return `https://s0.wp.com/mshots/v1/${encodeURIComponent(url)}?${params.toString()}`;
+export function screenshot(url: string, { mobile = false }: { mobile?: boolean } = {}) {
+  return `/work/${slugOf(url)}${mobile ? '-mobile' : ''}.jpg`;
 }
 
 export function hostOf(url: string) {
@@ -67,12 +69,14 @@ export const apps: WorkItem[] = [
   {
     name: 'GharKaMali',
     url: 'https://play.google.com/store/search?q=GharKaMali&c=apps',
+    image: screenshot('https://gharkamali.com', { mobile: true }),
     kind: 'app',
     tag: 'Android app',
   },
   {
     name: 'PizzaHap',
     url: 'https://play.google.com/store/search?q=PizzaHap&c=apps',
+    image: screenshot('https://pizzahap.com', { mobile: true }),
     kind: 'app',
     tag: 'Android app',
   },
@@ -84,7 +88,8 @@ export type FeaturedProject = {
   title: string;
   href: string;
   cta: string;
-  images: { src: string; alt: string }[];
+  /** `fit: 'contain'` shows the whole image (used for phone screenshots). */
+  images: { src: string; alt: string; fit?: 'cover' | 'contain' }[];
 };
 
 export const featured: FeaturedProject[] = [
@@ -97,10 +102,7 @@ export const featured: FeaturedProject[] = [
     images: [
       { src: screenshot('https://gharkamali.com'), alt: 'Ghar Ka Mali website' },
       { src: screenshot('https://oasiselevators.in'), alt: 'Oasis Elevators website' },
-      {
-        src: screenshot('https://assamkaziranganationalpark.com', { w: 800, h: 1000 }),
-        alt: 'Assam Kaziranga National Park website',
-      },
+      { src: screenshot('https://assamkaziranganationalpark.com'), alt: 'Assam Kaziranga National Park website' },
     ],
   },
   {
@@ -112,7 +114,7 @@ export const featured: FeaturedProject[] = [
     images: [
       { src: screenshot('https://gobt-crm.netlify.app/'), alt: 'GOBT CRM dashboard' },
       { src: screenshot('https://gymapperp.netlify.app/'), alt: 'Gym App ERP' },
-      { src: screenshot('https://jwellapp.netlify.app/', { w: 800, h: 1000 }), alt: 'Jewel App software' },
+      { src: screenshot('https://jwellapp.netlify.app/'), alt: 'Jewel App software' },
     ],
   },
   {
@@ -125,8 +127,9 @@ export const featured: FeaturedProject[] = [
       { src: screenshot('https://gharkamali.com'), alt: 'GharKaMali' },
       { src: screenshot('https://pizzahap.com'), alt: 'PizzaHap' },
       {
-        src: screenshot('https://pizzahap.com', { w: 480, h: 960, vpw: 480, vph: 960 }),
-        alt: 'PizzaHap on a phone-sized viewport',
+        src: screenshot('https://gharkamali.com', { mobile: true }),
+        alt: 'GharKaMali on a phone',
+        fit: 'contain',
       },
     ],
   },
@@ -139,7 +142,7 @@ export const featured: FeaturedProject[] = [
     images: [
       { src: screenshot('https://vetcollegegobt.netlify.app/'), alt: 'Vet College GOBT demo' },
       { src: screenshot('https://jssjewel.netlify.app/'), alt: 'JSS Jewel demo' },
-      { src: screenshot('https://goldenmoment.netlify.app/', { w: 800, h: 1000 }), alt: 'Golden Moment demo' },
+      { src: screenshot('https://goldenmoment.netlify.app/'), alt: 'Golden Moment demo' },
     ],
   },
 ];

@@ -94,11 +94,16 @@ function ProjectCard({ project, index, total, progress, reduce }: CardProps) {
   );
 }
 
-function CardImage({ src, alt, className = '', style }: { src: string; alt: string; className?: string; style?: CSSProperties }) {
+type CardImageProps = FeaturedProject['images'][number] & { className?: string; style?: CSSProperties };
+
+function CardImage({ src, alt, fit = 'cover', className = '', style }: CardImageProps) {
   const [failed, setFailed] = useState(false);
+  const contain = fit === 'contain';
   return (
     <div
-      className={`w-full overflow-hidden rounded-[28px] bg-[#151515] ring-1 ring-white/10 sm:rounded-[40px] md:rounded-[52px] ${className}`}
+      className={`w-full overflow-hidden rounded-[28px] ring-1 ring-white/10 sm:rounded-[40px] md:rounded-[52px] ${
+        contain ? 'bg-[radial-gradient(120%_120%_at_50%_0%,#2a2a2a_0%,#0c0c0c_70%)] p-4 sm:p-6' : 'bg-[#151515]'
+      } ${className}`}
       style={style}
     >
       {failed ? (
@@ -112,7 +117,7 @@ function CardImage({ src, alt, className = '', style }: { src: string; alt: stri
           loading="lazy"
           decoding="async"
           onError={() => setFailed(true)}
-          className="h-full w-full object-cover object-top"
+          className={contain ? 'h-full w-full object-contain' : 'h-full w-full object-cover object-top'}
         />
       )}
     </div>

@@ -26,18 +26,34 @@ export function WorkTile({ item, className = '', decorative = false }: WorkTileP
       className={`group relative block overflow-hidden rounded-2xl bg-[#151515] ring-1 ring-white/10 ${className}`}
     >
       {src && !failed ? (
-        <img
-          src={src}
-          alt=""
-          loading="lazy"
-          decoding="async"
-          width={840}
-          height={540}
-          onError={() => setFailed(true)}
-          className="h-full w-full object-cover object-top transition-transform duration-500 ease-out group-hover:scale-[1.04]"
-        />
+        isApp ? (
+          // Phone screenshot: show it whole, centred on a dark backdrop.
+          <div className="flex h-full w-full items-start justify-center bg-[radial-gradient(120%_120%_at_50%_0%,#2a2a2a_0%,#0c0c0c_70%)] px-6 pt-5">
+            <img
+              src={src}
+              alt=""
+              loading="lazy"
+              decoding="async"
+              width={390}
+              height={844}
+              onError={() => setFailed(true)}
+              className="w-[38%] rounded-xl ring-1 ring-white/15 transition-transform duration-500 ease-out group-hover:-translate-y-2"
+            />
+          </div>
+        ) : (
+          <img
+            src={src}
+            alt=""
+            loading="lazy"
+            decoding="async"
+            width={1440}
+            height={900}
+            onError={() => setFailed(true)}
+            className="h-full w-full object-cover object-top transition-transform duration-500 ease-out group-hover:scale-[1.04]"
+          />
+        )
       ) : (
-        <div className="flex h-full w-full flex-col items-start justify-end gap-3 bg-[radial-gradient(120%_120%_at_0%_0%,#2a2a2a_0%,#0c0c0c_70%)] p-5">
+        <div className="flex h-full w-full flex-col items-center justify-center gap-3 bg-[radial-gradient(120%_120%_at_0%_0%,#2a2a2a_0%,#0c0c0c_70%)] p-5 pb-16 text-center">
           {isApp && <Smartphone className="h-8 w-8 text-frost/70" aria-hidden="true" />}
           <span className="hero-heading text-3xl font-black uppercase leading-none tracking-tight sm:text-4xl">
             {item.name}
